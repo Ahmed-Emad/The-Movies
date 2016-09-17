@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">The Movies</string>
+
+    <string name="MOVIES_FRAGMENT_TAG">MOVIES_TAG</string>
+</resources>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="movies_options">
+        <item>Most Popular</item>
+        <item>Top Rated</item>
+        <item>Favourites</item>
+    </string-array>
+
+</resources>

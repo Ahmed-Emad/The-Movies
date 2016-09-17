@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="guillotine_background">#444153</color>
+
+    <color name="style_color_primary">#21425d</color>
+    <color name="style_color_primary_dark">#1B354B</color>
+    <color name="style_color_accent">#01bcd5</color>
+
+
+    <color name="white">#fff</color>
+    <color name="black">#000</color>
+
+    <color name="silver">#696969</color>
+
+
+</resources>
