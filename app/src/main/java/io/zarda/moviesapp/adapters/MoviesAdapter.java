@@ -49,7 +49,7 @@ public class MoviesAdapter extends BaseAdapter {
             imageView = new ImageView(mContext);
             imageView.setId(R.id.img_poster);
             imageView.setLayoutParams(new ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT, 600));
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
             imageView.setScaleType(ImageView.ScaleType.FIT_XY);
             imageView.setPadding(0, 0, 0, 0);
             imageView.setBackgroundColor(mContext.getResources().getColor(R.color.style_color_accent));

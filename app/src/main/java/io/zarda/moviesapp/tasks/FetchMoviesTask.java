@@ -9,13 +9,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 import io.zarda.moviesapp.Utils;
 import io.zarda.moviesapp.data.MoviesProvider;
@@ -28,6 +27,7 @@ import io.zarda.moviesapp.models.Movie;
  */
 public class FetchMoviesTask extends AsyncTask<String, Void, ArrayList<Movie>> {
 
+    final static String PARAM_API_KEY = "api_key";
     private final String LOG_TAG = FetchMoviesTask.class.getSimpleName();
     private AsyncMoviesResponse delegate;
     private Context context;
@@ -62,39 +62,34 @@ public class FetchMoviesTask extends AsyncTask<String, Void, ArrayList<Movie>> {
         }
 
         HttpURLConnection urlConnection = null;
-        BufferedReader reader = null;
 
         String moviesJsonStr = null;
 
 
-        try {
-            final String MOVIES_LIST_BASE_URL =
-                    "http://api.themoviedb.org/3/movie/" + movies_type + "?api_key=" + Utils.MOVIES_APP_KEY;
+        final String MOVIES_LIST_BASE_URL =
+                "http://api.themoviedb.org/3/movie/" + movies_type;
+        Uri builtUri = Uri.parse(MOVIES_LIST_BASE_URL).buildUpon()
+                .appendQueryParameter(PARAM_API_KEY, Utils.MOVIES_APP_KEY)
+                .build();
 
-            Uri builtUri = Uri.parse(MOVIES_LIST_BASE_URL);
+        try {
             URL url = new URL(builtUri.toString());
             Log.v(LOG_TAG, "Built URI " + builtUri.toString());
 
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("GET");
-            urlConnection.connect();
 
             InputStream inputStream = urlConnection.getInputStream();
-            StringBuffer buffer = new StringBuffer();
-            if (inputStream == null) {
+
+            Scanner scanner = new Scanner(inputStream);
+            scanner.useDelimiter("\\A");
+
+            boolean hasInput = scanner.hasNext();
+            if (hasInput) {
+                moviesJsonStr = scanner.next();
+            } else {
                 return null;
             }
-            reader = new BufferedReader(new InputStreamReader(inputStream));
-
-            String line;
-            while ((line = reader.readLine()) != null) {
-                buffer.append(line + "\n");
-            }
-
-            if (buffer.length() == 0) {
-                return null;
-            }
-            moviesJsonStr = buffer.toString();
 
             Log.v(LOG_TAG, "string: " + moviesJsonStr);
         } catch (IOException e) {
@@ -103,13 +98,6 @@ public class FetchMoviesTask extends AsyncTask<String, Void, ArrayList<Movie>> {
         } finally {
             if (urlConnection != null) {
                 urlConnection.disconnect();
-            }
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (final IOException e) {
-                    Log.e(LOG_TAG, "Error closing stream", e);
-                }
             }
         }
 
