@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 import io.zarda.moviesapp.Utils;
-import io.zarda.moviesapp.data.MoviesProvider;
 import io.zarda.moviesapp.fragments.MoviesFragment;
 import io.zarda.moviesapp.interfaces.AsyncMoviesResponse;
 import io.zarda.moviesapp.models.Movie;
@@ -56,10 +55,6 @@ public class FetchMoviesTask extends AsyncTask<String, Void, ArrayList<Movie>> {
         }
 
         String movies_type = params[0];
-
-        if (movies_type == MoviesFragment.FAVOURITES_KEY) {
-            return (new MoviesProvider(context)).getFavouriteMovies();
-        }
 
         HttpURLConnection urlConnection = null;
 

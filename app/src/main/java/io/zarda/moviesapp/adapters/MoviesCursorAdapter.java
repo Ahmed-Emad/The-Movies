@@ -5,6 +5,7 @@ package io.zarda.moviesapp.adapters;
  */
 
 import android.content.Context;
+import android.database.Cursor;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -12,35 +13,46 @@ import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 
-import java.util.List;
-
 import io.zarda.moviesapp.R;
 import io.zarda.moviesapp.models.Movie;
 
-public class MoviesAdapter extends BaseAdapter {
+public class MoviesCursorAdapter extends BaseAdapter {
 
     private Context mContext;
-    private List<Movie> movies;
+    private Cursor moviesCursor;
 
-    public MoviesAdapter(Context context, List<Movie> movies) {
+    public MoviesCursorAdapter(Context context, Cursor moviesCursor) {
         mContext = context;
-        this.movies = movies;
+        this.moviesCursor = moviesCursor;
     }
 
+    @Override
     public int getCount() {
-        if (movies != null) {
-            return movies.size();
+        if (moviesCursor != null) {
+            return moviesCursor.getCount();
         } else {
             return 0;
         }
     }
 
-    public Object getItem(int position) {
+    public Movie getItem(int position) {
+        if (moviesCursor.moveToPosition(position)) {
+            return new Movie(moviesCursor);
+        }
         return null;
     }
 
     public long getItemId(int position) {
+        Movie movie = getItem(position);
+        if (movie != null) {
+            return movie.getId();
+        }
         return 0;
+    }
+
+    public void swapCursor(Cursor newCursor) {
+        moviesCursor = newCursor;
+        notifyDataSetChanged();
     }
 
     public View getView(final int position, View convertView, ViewGroup parent) {
@@ -58,8 +70,7 @@ public class MoviesAdapter extends BaseAdapter {
         }
 
         Glide.clear(imageView);
-        Glide.with(mContext).load(movies.get(position).getPoster_path()).into(imageView);
+        Glide.with(mContext).load(getItem(position).getPoster_path()).into(imageView);
         return imageView;
     }
-
 }

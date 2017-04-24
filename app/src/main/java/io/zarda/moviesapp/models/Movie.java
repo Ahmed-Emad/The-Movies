@@ -4,6 +4,7 @@ package io.zarda.moviesapp.models;
  * Created by Ahmed Emad on 4 May, 2015.
  */
 
+import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -14,6 +15,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 import io.zarda.moviesapp.Utils;
+import io.zarda.moviesapp.data.MoviesContract.MovieEntry;
 
 
 public class Movie implements Parcelable {
@@ -45,6 +47,22 @@ public class Movie implements Parcelable {
     private Boolean adult;
 
     public Movie() {
+    }
+
+    public Movie(Cursor cursor) {
+        try {
+            this.id = cursor.getLong(cursor.getColumnIndex(MovieEntry.COLUMN_ID));
+            this.title = cursor.getString(cursor.getColumnIndex(MovieEntry.COLUMN_TITLE));
+            this.poster_path = cursor.getString(cursor.getColumnIndex(MovieEntry.COLUMN_POSTER_PATH));
+            this.backdrop_path = cursor.getString(cursor.getColumnIndex(MovieEntry.COLUMN_BACKDROP_PATH));
+            this.overview = cursor.getString(cursor.getColumnIndex(MovieEntry.COLUMN_OVERVIEW));
+            this.release_date = cursor.getString(cursor.getColumnIndex(MovieEntry.COLUMN_RELEASE_DATE));
+            this.original_language = cursor.getString(cursor.getColumnIndex(MovieEntry.COLUMN_ORIGINAL_LANGUAGE));
+            this.popularity = cursor.getDouble(cursor.getColumnIndex(MovieEntry.COLUMN_POPULARITY));
+            this.vote_average = cursor.getDouble(cursor.getColumnIndex(MovieEntry.COLUMN_VOTE_AVERAGE));
+            this.vote_count = cursor.getLong(cursor.getColumnIndex(MovieEntry.COLUMN_VOTE_COUNT));
+        } catch (Exception ignored) {
+        }
     }
 
     public Movie(Parcel in) {

@@ -16,7 +16,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import io.zarda.moviesapp.Utils;
-import io.zarda.moviesapp.data.MoviesProvider;
 import io.zarda.moviesapp.fragments.DetailsFragment;
 import io.zarda.moviesapp.interfaces.AsyncTrailersResponse;
 import io.zarda.moviesapp.models.MovieTrailers;
@@ -51,10 +50,6 @@ public class FetchTrailersTask extends AsyncTask<String, Void, MovieTrailers> {
 
         String movie_id = params[0];
         String type = params[1];
-
-        if (type == DetailsFragment.FAVOURITES_KEY) {
-            return (new MoviesProvider(context)).getMovieTrailers(movie_id);
-        }
 
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;

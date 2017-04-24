@@ -134,6 +134,11 @@ public class MovieTrailers implements Parcelable {
             this.type = in.readString();
         }
 
+        public Video(String name, String key) {
+            this.name = name;
+            this.key = key;
+        }
+
         public Video(String id, String key, String name, String site, Integer size, String type) {
             this.id = id;
             this.key = key;

@@ -17,10 +17,10 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 
 import io.zarda.moviesapp.R;
+import io.zarda.moviesapp.Utils;
 import io.zarda.moviesapp.activities.MainActivity;
 import io.zarda.moviesapp.adapters.ReviewsAdapter;
 import io.zarda.moviesapp.adapters.TrailersAdapter;
-import io.zarda.moviesapp.data.MoviesProvider;
 import io.zarda.moviesapp.interfaces.AsyncReviewsResponse;
 import io.zarda.moviesapp.interfaces.AsyncTrailersResponse;
 import io.zarda.moviesapp.models.Movie;
@@ -37,9 +37,7 @@ public class DetailsFragment extends Fragment implements AsyncTrailersResponse,
 
     public static final String MOVIE_KEY = "MOVIE_KEY";
     public static final String THE_MOVIE_KEY = "the_movie";
-    public static final String FAVOURITES_KEY = "favourites";
     private final String LOG_TAG = DetailsFragment.class.getSimpleName();
-    private MoviesProvider moviesProvider;
 
     private Movie movie;
     private MovieTrailers trailers;
@@ -107,17 +105,15 @@ public class DetailsFragment extends Fragment implements AsyncTrailersResponse,
         Glide.with(getContext()).load(movie.getBackdrop_path()).into(imgBackdrop);
         Glide.with(getContext()).load(R.drawable.ic_share_black_48dp).into(imgShare);
 
-        moviesProvider = new MoviesProvider(getActivity());
         trailersTask = new FetchTrailersTask(this, getActivity());
-        if (moviesProvider.isFavouriteMovie(movie)) {
-            trailersTask.execute(String.valueOf(movie.getId()), FAVOURITES_KEY);
+        if (Utils.isFavouriteMovie(getContext(), movie)) {
             Glide.with(getContext()).load(R.drawable.ic_favorite_black_48dp).into(imgFavourite);
             tvFavourite.setText("Unlike");
         } else {
-            trailersTask.execute(String.valueOf(movie.getId()), THE_MOVIE_KEY);
             Glide.with(getContext()).load(R.drawable.ic_favorite_border_black_48dp).into(imgFavourite);
             tvFavourite.setText("Like");
         }
+        trailersTask.execute(String.valueOf(movie.getId()), THE_MOVIE_KEY);
         llFavourite.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -141,20 +137,20 @@ public class DetailsFragment extends Fragment implements AsyncTrailersResponse,
     }
 
     private void toggleFavourite() {
-        if (moviesProvider.isFavouriteMovie(movie)) {
-            moviesProvider.deleteFavouriteMovie(movie);
+        if (Utils.isFavouriteMovie(getContext(), movie)) {
+            Utils.deleteFavouriteMovie(getContext(), movie);
             if (MainActivity.TWO_PANE) {
                 ((MoviesFragment) getActivity().getSupportFragmentManager().
                         findFragmentById(R.id.fragment_movies)).fetchFavourites();
             }
         } else {
-            moviesProvider.insertFavouriteMovie(movie, trailers);
+            Utils.insertFavouriteMovie(getContext(), movie, trailers);
             if (MainActivity.TWO_PANE) {
                 ((MoviesFragment) getActivity().getSupportFragmentManager().
                         findFragmentById(R.id.fragment_movies)).fetchFavourites();
             }
         }
-        if (moviesProvider.isFavouriteMovie(movie)) {
+        if (Utils.isFavouriteMovie(getContext(), movie)) {
             Glide.with(getContext()).load(R.drawable.ic_favorite_black_48dp).into(imgFavourite);
             tvFavourite.setText("Unlike");
         } else {

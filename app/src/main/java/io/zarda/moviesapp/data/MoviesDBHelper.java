@@ -5,7 +5,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import io.zarda.moviesapp.data.MoviesContract.MovieEntry;
-import io.zarda.moviesapp.data.MoviesContract.TrailerEntry;
 
 /**
  * Created by Ahmed Emad on 4 May, 2015.
@@ -38,27 +37,13 @@ public class MoviesDBHelper extends SQLiteOpenHelper {
 
                 " UNIQUE (" + MovieEntry.COLUMN_ID + ") ON CONFLICT REPLACE);";
 
-        final String SQL_CREATE_TRAILERS_TABLE = "CREATE TABLE IF NOT EXISTS " + TrailerEntry.TABLE_NAME +
-                " (" +
-
-                TrailerEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                TrailerEntry.COLUMN_KEY + " TEXT NOT NULL, " +
-                TrailerEntry.COLUMN_NAME + " TEXT NOT NULL, " +
-                TrailerEntry.COLUMN_MOVIE_KEY + " INTEGER NOT NULL, " +
-
-                " FOREIGN KEY (" + TrailerEntry.COLUMN_MOVIE_KEY + ") REFERENCES " +
-                MovieEntry.TABLE_NAME + " (" + MovieEntry.COLUMN_ID + ")" +
-                " );";
-
         sqLiteDatabase.execSQL(SQL_CREATE_MOVIES_TABLE);
-        sqLiteDatabase.execSQL(SQL_CREATE_TRAILERS_TABLE);
     }
 
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + MovieEntry.TABLE_NAME);
-        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TrailerEntry.TABLE_NAME);
         onCreate(sqLiteDatabase);
     }
 

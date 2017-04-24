@@ -1,6 +1,7 @@
 package io.zarda.moviesapp.fragments;
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.MenuItemCompat;
@@ -16,29 +17,31 @@ import android.widget.ArrayAdapter;
 import android.widget.GridView;
 import android.widget.Spinner;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import io.zarda.moviesapp.R;
 import io.zarda.moviesapp.activities.DetailsActivity;
 import io.zarda.moviesapp.activities.MainActivity;
 import io.zarda.moviesapp.adapters.MoviesAdapter;
+import io.zarda.moviesapp.adapters.MoviesCursorAdapter;
+import io.zarda.moviesapp.interfaces.AsyncFavouriteMoviesResponse;
 import io.zarda.moviesapp.interfaces.AsyncMoviesResponse;
 import io.zarda.moviesapp.interfaces.MovieClickListener;
 import io.zarda.moviesapp.models.Movie;
+import io.zarda.moviesapp.tasks.FetchFavouriteMoviesTask;
 import io.zarda.moviesapp.tasks.FetchMoviesTask;
 
 /**
  * Created by Ahmed Emad on 4 May, 2015.
  */
 public class MoviesFragment extends Fragment implements AsyncMoviesResponse, MovieClickListener,
-        AdapterView.OnItemSelectedListener {
+        AsyncFavouriteMoviesResponse, AdapterView.OnItemSelectedListener {
 
     public static final String DETAILS_FRAGMENT_TAG = "DETAILS_TAG";
     public static final String POPULAR_KEY = "popular";
     public static final String RATED_KEY = "top_rated";
-    public static final String FAVOURITES_KEY = "favourites";
     public static boolean inFavourites = false;
-    ArrayList<Movie> movies;
+    List<Movie> movies;
     GridView gridView;
     View lastView;
 
@@ -78,14 +81,13 @@ public class MoviesFragment extends Fragment implements AsyncMoviesResponse, Mov
     @Override
     public void onStart() {
         super.onStart();
-        Log.w("Start", "Again");
         fetchFavourites();
     }
 
     public void fetchFavourites() {
         if (inFavourites) {
-            FetchMoviesTask moviesTask = new FetchMoviesTask(this, getActivity());
-            moviesTask.execute(FAVOURITES_KEY);
+            FetchFavouriteMoviesTask moviesTask = new FetchFavouriteMoviesTask(this, getActivity());
+            moviesTask.execute();
         }
     }
 
@@ -101,8 +103,8 @@ public class MoviesFragment extends Fragment implements AsyncMoviesResponse, Mov
             moviesTask.execute(RATED_KEY);
             inFavourites = false;
         } else {
-            FetchMoviesTask moviesTask = new FetchMoviesTask(this, getActivity());
-            moviesTask.execute(FAVOURITES_KEY);
+            FetchFavouriteMoviesTask moviesTask = new FetchFavouriteMoviesTask(this, getActivity());
+            moviesTask.execute();
             inFavourites = true;
         }
     }
@@ -130,7 +132,7 @@ public class MoviesFragment extends Fragment implements AsyncMoviesResponse, Mov
     }
 
     @Override
-    public void onFetchingMoviesFinish(ArrayList<Movie> result) {
+    public void onFetchingMoviesFinish(List<Movie> result) {
         movies = result;
         MoviesAdapter moviesAdapter = new MoviesAdapter(getContext(), movies);
         gridView.setAdapter(moviesAdapter);
@@ -150,4 +152,25 @@ public class MoviesFragment extends Fragment implements AsyncMoviesResponse, Mov
         });
     }
 
+    @Override
+    public void onFetchingFavouriteMoviesFinish(final Cursor result) {
+        movies = null;
+        MoviesCursorAdapter moviesAdapter = new MoviesCursorAdapter(getContext(), result);
+        gridView.setAdapter(moviesAdapter);
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                result.moveToPosition(position);
+                Movie movie = new Movie(result);
+                if (MainActivity.TWO_PANE) {
+                    if (lastView != null) {
+                        lastView.setPadding(0, 0, 0, 0);
+                    }
+                    lastView = view.findViewById(R.id.img_poster);
+                    lastView.setPadding(0, 10, 0, 10);
+                }
+                OnMovieClickListener(movie);
+            }
+        });
+    }
 }

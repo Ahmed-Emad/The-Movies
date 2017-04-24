@@ -24,6 +24,10 @@
                 android:name=".activities.DetailsActivity"
                 android:configChanges="orientation|screenSize"/>
 
-    </application>
+        <provider
+                android:name=".data.MoviesProvider"
+                android:authorities="io.zarda.moviesapp"
+                android:exported="false"/>
 
+    </application>
 </manifest>
