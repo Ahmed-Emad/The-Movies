@@ -5,7 +5,6 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.MenuItemCompat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -37,18 +36,22 @@ import io.zarda.moviesapp.tasks.FetchMoviesTask;
 public class MoviesFragment extends Fragment implements AsyncMoviesResponse, MovieClickListener,
         AsyncFavouriteMoviesResponse, AdapterView.OnItemSelectedListener {
 
-    public static final String DETAILS_FRAGMENT_TAG = "DETAILS_TAG";
     public static final String POPULAR_KEY = "popular";
     public static final String RATED_KEY = "top_rated";
+    public static final String POSITION_KEY = "selected_position";
     public static boolean inFavourites = false;
+
     List<Movie> movies;
     GridView gridView;
     View lastView;
+
+    private int currentSelectedPosition = 0;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        setRetainInstance(true);
     }
 
     @Override
@@ -58,8 +61,9 @@ public class MoviesFragment extends Fragment implements AsyncMoviesResponse, Mov
 
         gridView = (GridView) rootView.findViewById(R.id.gridview);
 
-        FetchMoviesTask moviesTask = new FetchMoviesTask(this, getActivity());
-        moviesTask.execute("popular");
+        if (savedInstanceState != null && savedInstanceState.containsKey(POSITION_KEY)) {
+            currentSelectedPosition = savedInstanceState.getInt(POSITION_KEY);
+        }
         return rootView;
     }
 
@@ -76,6 +80,8 @@ public class MoviesFragment extends Fragment implements AsyncMoviesResponse, Mov
 
         spinner.setAdapter(adapter);
         spinner.setOnItemSelectedListener(this);
+
+        spinner.setSelection(currentSelectedPosition);
     }
 
     @Override
@@ -92,21 +98,40 @@ public class MoviesFragment extends Fragment implements AsyncMoviesResponse, Mov
     }
 
     @Override
+    public void onSaveInstanceState(Bundle state) {
+        state.putInt(POSITION_KEY, currentSelectedPosition);
+        System.out.println("putInt currentSelectedPosition: " + currentSelectedPosition);
+        super.onSaveInstanceState(state);
+    }
+
+    @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        Log.w("Spinner: ", "" + position);
+        currentSelectedPosition = position;
         if (position == 0) {
-            FetchMoviesTask moviesTask = new FetchMoviesTask(this, getActivity());
-            moviesTask.execute(POPULAR_KEY);
-            inFavourites = false;
+            fetchPopularMovies();
         } else if (position == 1) {
-            FetchMoviesTask moviesTask = new FetchMoviesTask(this, getActivity());
-            moviesTask.execute(RATED_KEY);
-            inFavourites = false;
+            fetchRatedMovies();
         } else {
-            FetchFavouriteMoviesTask moviesTask = new FetchFavouriteMoviesTask(this, getActivity());
-            moviesTask.execute();
-            inFavourites = true;
+            fetchFavouriteMovies();
         }
+    }
+
+    private void fetchFavouriteMovies() {
+        FetchFavouriteMoviesTask moviesTask = new FetchFavouriteMoviesTask(this, getActivity());
+        moviesTask.execute();
+        inFavourites = true;
+    }
+
+    private void fetchRatedMovies() {
+        FetchMoviesTask moviesTask = new FetchMoviesTask(this, getActivity());
+        moviesTask.execute(RATED_KEY);
+        inFavourites = false;
+    }
+
+    private void fetchPopularMovies() {
+        FetchMoviesTask moviesTask = new FetchMoviesTask(this, getActivity());
+        moviesTask.execute(POPULAR_KEY);
+        inFavourites = false;
     }
 
     @Override
@@ -122,7 +147,7 @@ public class MoviesFragment extends Fragment implements AsyncMoviesResponse, Mov
             detailFragment.setArguments(args);
 
             getFragmentManager().beginTransaction()
-                    .replace(R.id.details_container, detailFragment, DETAILS_FRAGMENT_TAG)
+                    .replace(R.id.details_container, detailFragment, MainActivity.TAG_DETAILS_FRAGMENT)
                     .commit();
         } else {
             Intent intent = new Intent(getActivity(), DetailsActivity.class);

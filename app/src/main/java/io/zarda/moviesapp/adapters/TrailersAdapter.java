@@ -42,7 +42,7 @@ public class TrailersAdapter extends RecyclerView.Adapter<TrailersAdapter.ViewHo
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(Intent.ACTION_VIEW,
-                        Uri.parse("vnd.youtube://" + video.getKey()));
+                        Uri.parse("https://www.youtube.com/watch?v=" + video.getKey()));
                 mContext.startActivity(intent);
             }
         });

@@ -12,8 +12,7 @@
             android:theme="@style/AppTheme">
 
         <activity
-                android:name=".activities.MainActivity"
-                android:configChanges="orientation|screenSize">
+                android:name=".activities.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
@@ -21,8 +20,7 @@
             </intent-filter>
         </activity>
         <activity
-                android:name=".activities.DetailsActivity"
-                android:configChanges="orientation|screenSize"/>
+                android:name=".activities.DetailsActivity"/>
 
         <provider
                 android:name=".data.MoviesProvider"
